@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Flowchart Violenza – Ticino (Clinica psichiatrica)</title>
+  <style>
+    :root{
+      --bg:#f7f8fb; --card:#ffffff; --text:#0f172a; --muted:#475569;
+      --border:#e2e8f0; --hi:#b91c1c; --med:#0f766e; --low:#334155;
+      --btn:#0f172a; --btnText:#fff;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background: linear-gradient(180deg, var(--bg), #fff);
+      color:var(--text);
+    }
+    .wrap{max-width:980px; margin:0 auto; padding:16px;}
+    h1{font-size:22px; margin:0 0 4px;}
+    .sub{color:var(--muted); font-size:13px; margin:0 0 14px;}
+    .grid{display:grid; gap:12px;}
+    @media (min-width: 860px){ .grid{grid-template-columns: 1.2fr .8fr;} }
+    .card{
+      background:var(--card); border:1px solid var(--border); border-radius:16px;
+      padding:14px; box-shadow: 0 1px 2px rgba(0,0,0,.04);
+    }
+    .card h2{font-size:16px; margin:0 0 8px;}
+    .help{color:var(--muted); font-size:13px; margin:0 0 10px; line-height:1.35;}
+    .row{display:flex; gap:10px; flex-wrap:wrap;}
+    .btn{
+      border:1px solid var(--border); background:#fff; color:var(--text);
+      padding:10px 12px; border-radius:12px; cursor:pointer; font-weight:600;
+      flex: 1 1 220px; text-align:left;
+    }
+    .btn:focus{outline:3px solid rgba(15,23,42,.15); outline-offset:2px;}
+    .btn.selected{background: var(--btn); border-color: var(--btn); color: var(--btnText);}
+    .nav{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:10px;}
+    .nav .small{font-size:13px; color:var(--muted);}
+    .nav button{
+      border:1px solid var(--border); background:#fff; padding:9px 12px; border-radius:12px; cursor:pointer; font-weight:600;
+    }
+    .nav button.primary{background: var(--btn); color: var(--btnText); border-color: var(--btn);}
+    .nav button:disabled{opacity:.5; cursor:not-allowed;}
+    .badge{display:inline-flex; align-items:center; gap:6px; padding:4px 9px; border-radius:999px; font-size:12px; font-weight:700; border:1px solid var(--border); background:#fff;}
+    .badge.hi{border-color:#fecaca; background:#fff1f2; color:var(--hi);}
+    .badge.med{border-color:#99f6e4; background:#f0fdfa; color:var(--med);}
+    .badge.low{border-color:#cbd5e1; background:#f8fafc; color:var(--low);}
+    .sep{height:1px; background:var(--border); margin:12px 0;}
+    .planItem{border:1px solid var(--border); border-radius:14px; padding:12px; background:#fff; display:flex; gap:12px; align-items:flex-start; justify-content:space-between;}
+    .planLeft{min-width:0;}
+    .planTitle{font-weight:800; margin:0 0 3px; font-size:14px;}
+    .planWhy{margin:0; color:var(--muted); font-size:13px; line-height:1.35;}
+    .call{display:inline-flex; align-items:center; gap:8px;}
+    .call a{
+      display:inline-flex; align-items:center; gap:8px;
+      background:var(--btn); color:var(--btnText); text-decoration:none; font-weight:800;
+      padding:9px 12px; border-radius:12px; white-space:nowrap;
+    }
+    .call .ghost{
+      background:#fff; color:var(--muted); border:1px dashed var(--border);
+      padding:9px 12px; border-radius:12px; font-weight:700; white-space:nowrap;
+    }
+    .note{background:#fff; border:1px solid var(--border); border-radius:14px; padding:12px; color:var(--muted); font-size:13px; line-height:1.35;}
+    label{display:block; font-size:12px; color:var(--muted); margin:10px 0 6px;}
+    input{
+      width:100%; padding:10px 11px; border-radius:12px; border:1px solid var(--border);
+      font-size:14px;
+    }
+    .mini{font-size:12px; color:var(--muted); margin-top:6px;}
+    .pill{display:inline-block; padding:2px 8px; border-radius:999px; background:#f1f5f9; color:#0f172a; font-weight:700; font-size:12px; border:1px solid var(--border);}
+    .footer{margin-top:10px; font-size:12px; color:var(--muted);}
+    ul{margin:8px 0 0 18px; padding:0;}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Flowchart Violenza – Canton Ticino</h1>
+    <p class="sub">Clinica psichiatrica • tool rapido per decidere chi contattare (priorità: 117 / 144 / ARP / UAP / LAVI e rete)</p>
+
+    <div class="grid">
+      <!-- LEFT: flow -->
+      <div class="card" id="flowCard">
+        <h2 id="qTitle">Domanda</h2>
+        <p class="help" id="qHelp"></p>
+        <div class="row" id="options"></div>
+
+        <div class="sep"></div>
+
+        <div class="nav">
+          <button id="backBtn">Indietro</button>
+          <div class="small" id="stepTxt">Step</div>
+          <button class="primary" id="nextBtn">Avanti</button>
+        </div>
+
+        <div class="sep"></div>
+
+        <div class="note">
+          <strong>Regola d’oro:</strong> se c’è <span class="pill">pericolo immediato</span>, la priorità è <span class="pill">117</span> (e <span class="pill">144</span> se emergenza medica).
+        </div>
+      </div>
+
+      <!-- RIGHT: settings + quick legend -->
+      <div class="card">
+        <h2>Impostazioni (numeri locali)</h2>
+        <p class="help">Inserisci qui i recapiti specifici della tua regione/struttura (ARP, UAP, LAVI, casa rifugio, SMP, servizi sociali, numero interno).</p>
+
+        <label>ARP (Autorità Regionale di Protezione)</label>
+        <input id="arpNum" placeholder="es. +41 ..." />
+
+        <label>UAP (Ufficio Aiuto e Protezione)</label>
+        <input id="uapNum" placeholder="es. +41 ..." />
+
+        <label>LAVI Ticino</label>
+        <input id="laviNum" placeholder="es. +41 ..." />
+
+        <label>Casa rifugio / struttura protetta</label>
+        <input id="refugeNum" placeholder="es. +41 ..." />
+
+        <label>SMP (Servizio Medico Psicologico) / contatto minori</label>
+        <input id="smpNum" placeholder="es. +41 ..." />
+
+        <label>Servizi sociali comunali</label>
+        <input id="socialsNum" placeholder="es. +41 ..." />
+
+        <label>Numero interno (direzione sanitaria / reperibilità)</label>
+        <input id="internalNum" placeholder="es. interno / +41 ..." />
+
+        <div class="mini">I numeri 117 / 144 / 112 / 143 sono già impostati.</div>
+
+        <div class="sep"></div>
+
+        <h2>Legenda priorità</h2>
+        <div class="row">
+          <span class="badge hi">Priorità alta</span>
+          <span class="badge med">Priorità media</span>
+          <span class="badge low">Supporto</span>
+        </div>
+
+        <div class="footer">
+          Suggerimento: salva il file come <strong>flowchart.html</strong> e aprilo con doppio clic. Funziona offline.
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULTS -->
+    <div class="card" id="resultCard" style="margin-top:12px; display:none;">
+      <h2>Risultato: chi contattare (in ordine di priorità)</h2>
+      <p class="help">La lista seguente è ordinata dal più urgente/utile al meno urgente, in base alle risposte.</p>
+
+      <div class="sep"></div>
+
+      <div id="plan"></div>
+
+      <div class="sep"></div>
+
+      <div class="note">
+        <strong>Promemoria operativo</strong>
+        <ul>
+          <li>Documentare in modo descrittivo e non valutativo.</li>
+          <li>Se coinvolti minori: ARP = decisione formale; UAP = sostegno volontario.</li>
+          <li>Violenza domestica non urgente: LAVI come primo punto di riferimento per supporto alla vittima.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer">
+      <strong>Nota:</strong> questo strumento è un ausilio decisionale interno; in caso di dubbio clinico/legale, coinvolgere la direzione sanitaria.
+    </div>
+  </div>
+
+<script>
+(function(){
+  // --- Contacts (some have placeholders filled via settings) ---
+  const CONTACTS = {
+    police:   { name:"Polizia", number:"117", why:"Pericolo immediato, minacce credibili, armi, aggressione in corso" },
+    ambulance:{ name:"Ambulanza", number:"144", why:"Lesioni / rischio vita / emergenza sanitaria" },
+    euro:     { name:"Emergenze UE", number:"112", why:"Alternativa emergenza" },
+    arp:      { name:"ARP (Autorità Regionale di Protezione)", number:"", why:"Decisioni formali: minori / adulti vulnerabili" },
+    uap:      { name:"UAP (Ufficio Aiuto e Protezione)", number:"", why:"Sostegno socio-educativo / intervento volontario" },
+    lavi:     { name:"LAVI Ticino", number:"", why:"Aiuto alle vittime: supporto psicologico/legale/economico" },
+    refuge:   { name:"Casa rifugio / struttura protetta", number:"", why:"Protezione abitativa immediata su base volontaria" },
+    socials:  { name:"Servizi sociali comunali", number:"", why:"Supporto sociale/abitativo/rete" },
+    smp:      { name:"SMP (Servizio Medico Psicologico)", number:"", why:"Valutazione/presa in carico specialistica minori" },
+    prosen:   { name:"Pro Senectute Ticino", number:"", why:"Supporto per anziani/adulti fragili" },
+    helpline: { name:"La Main Tendue", number:"143", why:"Supporto emotivo 24/7" },
+    internal: { name:"Direzione sanitaria / reperibilità interna", number:"", why:"Coordinamento clinico e decisionale" },
+    medlegal: { name:"Pronto soccorso / Medicina legale", number:"", why:"Valutazione clinica e documentazione medico-legale" }
+  };
+
+  const PRIORITY_BADGE = {
+    HIGH: { cls:"hi", label:"Priorità alta" },
+    MED:  { cls:"med", label:"Priorità media" },
+    LOW:  { cls:"low", label:"Supporto" }
+  };
+
+  // --- Questions (simple stepper) ---
+  const QUESTIONS = [
+    {
+      id:"immediateDanger",
+      title:"C’è pericolo immediato?",
+      help:"Aggressione in corso, minacce credibili, armi, rischio vita nelle prossime ore.",
+      options:[ {v:true, t:"Sì"}, {v:false, t:"No"} ]
+    },
+    {
+      id:"injuries",
+      title:"Ci sono lesioni o rischio medico urgente?",
+      help:"Ferite, emorragie, perdita di coscienza, emergenza medica.",
+      showIf: (a)=> a.immediateDanger === true,
+      options:[ {v:true, t:"Sì"}, {v:false, t:"No"} ]
+    },
+    {
+      id:"clientType",
+      title:"Tipo di cliente",
+      help:"Seleziona la categoria principale.",
+      options:[
+        {v:"Donna", t:"Donna"},
+        {v:"Uomo", t:"Uomo"},
+        {v:"Minore", t:"Minore"},
+        {v:"Anziano/adulto vulnerabile", t:"Anziano/adulto vulnerabile"},
+        {v:"Altro adulto", t:"Altro adulto"}
+      ]
+    },
+    {
+      id:"childrenInvolved",
+      title:"Sono coinvolti minori (anche come testimoni/violenza assistita)?",
+      help:"Bambini presenti, esposti o potenzialmente a rischio.",
+      options:[ {v:true, t:"Sì"}, {v:false, t:"No"} ]
+    },
+    {
+      id:"vulnerableAdult",
+      title:"C’è un adulto vulnerabile (incapacità di tutelarsi / dipendenza)?",
+      help:"Fragilità cognitiva, dipendenza funzionale o grave coercizione.",
+      options:[ {v:true, t:"Sì"}, {v:false, t:"No"} ]
+    },
+    {
+      id:"sexualViolenceRecent",
+      title:"Violenza sessuale recente (circa <72h)?",
+      help:"Richiede percorso medico-legale tempestivo.",
+      options:[ {v:true, t:"Sì"}, {v:false, t:"No"} ]
+    },
+    {
+      id:"ongoingDV",
+      title:"Violenza domestica/di coppia (non immediata ma presente/ricorrente)?",
+      help:"Maltrattamenti, controllo coercitivo, minacce non imminenti.",
+      options:[ {v:true, t:"Sì"}, {v:false, t:"No"} ]
+    },
+    {
+      id:"patientIsPerpetrator",
+      title:"Il paziente è autore di violenza (rischio verso terzi)?",
+      help:"Minacce/piani/escalation (non imminente). In caso di imminenza: tornare al criterio di pericolo immediato.",
+      options:[ {v:true, t:"Sì"}, {v:false, t:"No"} ]
+    },
+    {
+      id:"suspectOnly",
+      title:"È solo un sospetto senza elementi concreti?",
+      help:"Segnali indiretti; utile confronto in équipe e follow-up.",
+      options:[ {v:true, t:"Sì"}, {v:false, t:"No"} ]
+    }
+  ];
+
+  const state = {
+    step: 0,
+    answers: {
+      immediateDanger:null,
+      injuries:null,
+      clientType:null,
+      childrenInvolved:null,
+      vulnerableAdult:null,
+      sexualViolenceRecent:null,
+      ongoingDV:null,
+      patientIsPerpetrator:null,
+      suspectOnly:null
+    }
+  };
+
+  // --- Settings bindings ---
+  const setNum = (key, inputId) => {
+    const el = document.getElementById(inputId);
+    el.addEventListener("input", () => {
+      CONTACTS[key].number = el.value.trim();
+      // If results already displayed, re-render to update tel links
+      renderResultsIfDone();
+    });
+  };
+  setNum("arp","arpNum");
+  setNum("uap","uapNum");
+  setNum("lavi","laviNum");
+  setNum("refuge","refugeNum");
+  setNum("smp","smpNum");
+  setNum("socials","socialsNum");
+  setNum("internal","internalNum");
+
+  // Optional: allow setting for medlegal pathway via internal or text
+  // (left blank by default)
+
+  function visibleQuestions(){
+    return QUESTIONS.filter(q => !q.showIf || q.showIf(state.answers));
+  }
+
+  function currentQuestion(){
+    const vq = visibleQuestions();
+    return vq[state.step] || null;
+  }
+
+  function canNext(){
+    const q = currentQuestion();
+    if(!q) return true;
+    const val = state.answers[q.id];
+    return val !== null && typeof val !== "undefined";
+  }
+
+  // --- Plan builder (priority-ordered list) ---
+  function buildPlan(a){
+    const plan = [];
+
+    // Helper to push with priority
+    const push = (p, c) => plan.push({ p, ...c });
+
+    // 1) Emergency
+    if (a.immediateDanger === true){
+      push("HIGH", CONTACTS.police);
+      if (a.injuries === true) push("HIGH", CONTACTS.ambulance);
+      return plan;
+    }
+
+    // 2) Recent sexual violence
+    if (a.sexualViolenceRecent === true){
+      push("HIGH", CONTACTS.police);
+      push("HIGH", CONTACTS.medlegal); // user can customize text/number later if desired
+      push("MED", CONTACTS.lavi);
+      if (a.clientType === "Minore" || a.childrenInvolved === true) push("HIGH", CONTACTS.arp);
+      return plan;
+    }
+
+    // 3) Minors involved (victim or witness)
+    if (a.clientType === "Minore" || a.childrenInvolved === true){
+      push("HIGH", CONTACTS.arp);
+      push("MED", CONTACTS.uap);
+      push("MED", CONTACTS.smp);
+      if (a.ongoingDV === true) push("MED", CONTACTS.lavi);
+      push("LOW", CONTACTS.socials);
+      return plan;
+    }
+
+    // 4) Vulnerable adult / elderly
+    if (a.vulnerableAdult === true || a.clientType === "Anziano/adulto vulnerabile"){
+      push("HIGH", CONTACTS.arp);
+      push("MED", CONTACTS.prosen);
+      push("LOW", CONTACTS.socials);
+      push("LOW", CONTACTS.lavi);
+      return plan;
+    }
+
+    // 5) Ongoing domestic violence (adults)
+    if (a.ongoingDV === true){
+      push("HIGH", CONTACTS.lavi);
+      push("MED", CONTACTS.refuge);
+      push("LOW", CONTACTS.socials);
+      push("LOW", CONTACTS.helpline);
+      return plan;
+    }
+
+    // 6) Patient is perpetrator (non-imminent)
+    if (a.patientIsPerpetrator === true){
+      push("HIGH", CONTACTS.internal);
+      push("MED", { name:"Valutazione rischio strutturata", number:"", why:"Procedura interna (credibilità e imminenza)" });
+      push("LOW", CONTACTS.lavi);
+      return plan;
+    }
+
+    // 7) Only suspicion
+    if (a.suspectOnly === true){
+      push("HIGH", { name:"Discussione in équipe", number:"", why:"Condividere osservazioni e decidere follow-up" });
+      push("LOW", CONTACTS.helpline);
+      return plan;
+    }
+
+    // default
+    push("HIGH", { name:"Valutazione clinica e monitoraggio", number:"", why:"Nessun trigger specifico selezionato" });
+    return plan;
+  }
+
+  // --- Render question UI ---
+  const qTitle = document.getElementById("qTitle");
+  const qHelp  = document.getElementById("qHelp");
+  const optionsEl = document.getElementById("options");
+  const stepTxt = document.getElementById("stepTxt");
+  const backBtn = document.getElementById("backBtn");
+  const nextBtn = document.getElementById("nextBtn");
+
+  const resultCard = document.getElementById("resultCard");
+  const planEl = document.getElementById("plan");
+
+  backBtn.addEventListener("click", ()=>{
+    state.step = Math.max(0, state.step - 1);
+    render();
+  });
+
+  nextBtn.addEventListener("click", ()=>{
+    const vq = visibleQuestions();
+    const doneIndex = vq.length;
+    if (state.step < doneIndex) state.step++;
+    render();
+  });
+
+  function render(){
+    const vq = visibleQuestions();
+    const done = state.step >= vq.length;
+
+    // Update nav
+    backBtn.disabled = state.step === 0;
+    nextBtn.disabled = !canNext();
+    nextBtn.textContent = done ? "Fatto" : "Avanti";
+    stepTxt.textContent = done ? "Completato" : `Step ${state.step+1} / ${vq.length}`;
+
+    // Show/hide result card
+    resultCard.style.display = done ? "block" : "none";
+
+    // Render question or results
+    if(!done){
+      const q = vq[state.step];
+      qTitle.textContent = q.title;
+      qHelp.textContent = q.help || "";
+      optionsEl.innerHTML = "";
+      q.options.forEach(opt=>{
+        const b = document.createElement("button");
+        b.className = "btn";
+        const selected = state.answers[q.id] === opt.v;
+        if(selected) b.classList.add("selected");
+        b.textContent = opt.t;
+        b.addEventListener("click", ()=>{
+          state.answers[q.id] = opt.v;
+
+          // If switching immediateDanger to false, clear injuries (hidden question)
+          if(q.id === "immediateDanger" && opt.v === false){
+            state.answers.injuries = null;
+          }
+          render(); // re-render to reflect selection
+        });
+        optionsEl.appendChild(b);
+      });
+
+      // Also re-render results panel if it was visible previously
+      // (not needed because done=false)
+    } else {
+      renderResultsIfDone();
+    }
+  }
+
+  function sanitizeTel(num){
+    return (num || "").replace(/\s+/g,"");
+  }
+
+  function isPlaceholderNumber(num){
+    return !num || num.trim().length === 0;
+  }
+
+  function renderResultsIfDone(){
+    const vq = visibleQuestions();
+    const done = state.step >= vq.length;
+    if(!done) return;
+
+    const plan = buildPlan(state.answers);
+    planEl.innerHTML = "";
+
+    plan.forEach((item, idx)=>{
+      const badge = PRIORITY_BADGE[item.p] || PRIORITY_BADGE.LOW;
+
+      const container = document.createElement("div");
+      container.className = "planItem";
+
+      const left = document.createElement("div");
+      left.className = "planLeft";
+
+      const title = document.createElement("p");
+      title.className = "planTitle";
+      title.textContent = `${idx+1}. ${item.name}`;
+
+      const why = document.createElement("p");
+      why.className = "planWhy";
+      const numTxt = item.number ? ` • ${item.number}` : "";
+      why.textContent = `${item.why}${numTxt}`;
+
+      const badgeEl = document.createElement("span");
+      badgeEl.className = `badge ${badge.cls}`;
+      badgeEl.textContent = badge.label;
+
+      left.appendChild(title);
+      left.appendChild(why);
+
+      const right = document.createElement("div");
+      right.className = "call";
+
+      // Badge on the right top
+      right.appendChild(badgeEl);
+
+      if(!isPlaceholderNumber(item.number) && /^[0-9+]/.test(item.number.trim())){
+        const a = document.createElement("a");
+        a.href = `tel:${sanitizeTel(item.number)}`;
+        a.textContent = "Chiama";
+        right.appendChild(a);
+      } else if(item.number && item.number.trim().length > 0){
+        const s = document.createElement("span");
+        s.className = "ghost";
+        s.textContent = "Numero non telefonabile";
+        right.appendChild(s);
+      } else {
+        const s = document.createElement("span");
+        s.className = "ghost";
+        s.textContent = "Inserire numero";
+        right.appendChild(s);
+      }
+
+      container.appendChild(left);
+      container.appendChild(right);
+
+      planEl.appendChild(container);
+    });
+  }
+
+  // Init
+  render();
+})();
+</script>
+</body>
+</html>
